@@ -1,17 +1,24 @@
 package com.phonecompany.billing;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 
+@Slf4j
 public class TelephoneBillCalculatorImpl implements TelephoneBillCalculator {
 
     @Override
     public BigDecimal calculate(String phoneLog) {
+        log.info(LocalDateTime.now() + ": Calculation of bill started.");
+
         String[] lines = phoneLog.split("\n");
         HashMap<String, PhoneNumber> phoneNumbers = calculateForEachNumber(lines);
+
+        log.info(LocalDateTime.now() + ": Calculation of bill finished.");
 
         return sumAllPrices(phoneNumbers);
     }
@@ -20,6 +27,8 @@ public class TelephoneBillCalculatorImpl implements TelephoneBillCalculator {
         HashMap<String, PhoneNumber> phoneNumbers = new HashMap<>();
 
         for (String currentLine : lines) {
+            log.debug(LocalDateTime.now() + ": Execution of line: " + currentLine);
+
             String[] fields = currentLine.split(",");
             String phoneNumberStr = fields[0];
             PhoneNumber currentPhoneNumber = phoneNumbers.get(phoneNumberStr);
@@ -63,6 +72,7 @@ public class TelephoneBillCalculatorImpl implements TelephoneBillCalculator {
 
         currentPhoneNumber.increasePrice(price);
         currentPhoneNumber.incrementNumOfCalls();
+        log.debug(LocalDateTime.now() + ": Values for phone number: " + currentPhoneNumber.getPhoneNumber() + " updated.");
     }
 
     private BigDecimal sumAllPrices(HashMap<String, PhoneNumber> phoneNumbers) {
